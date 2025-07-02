@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Демонстрационные примеры</title>
+    <link rel="stylesheet" href="stylex.css" />
+    <link rel="apple-touch-icon" sizes="180x180" href="../favicon/android-chrome-192x192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="../favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../favicon/favicon-16x16.png">
+    <link rel="manifest" href="../favicon/android-chrome-512x512.png">
+  </head>
+  <body>
+    <div class="container">
+      <div class="accordion">
+        <button class="accordion__btn glass">Разбор файла 1</button>
+        <div class="accordion__content glass">
+          <section class="glass">
+            <h2>Разбор файла 1</h2>
+            <h2>Результат выполнения кода:</h2>
+             <p><img src="image2/Map.png"  width="500" height="500" alt=""></p>
+             <h2>Разбор кода:</h2>
+            <!-- Функция sun -->
+            <article class="function">
+              <h3>sun[{x, y}]</h3>
+              <p>
+                <strong>Назначение:</strong> рисует стилизованное солнце в точке
+                <code>(x, y)</code>.
+              </p>
+              <p><strong>Сигнатура:</strong> <code>sun[{x_, y_}]</code></p>
+              <p><strong>Параметры:</strong></p>
+              <ul>
+                <li><code>x</code>, <code>y</code> — координаты центра.</li>
+              </ul>
+              <p>
+                <strong>Описание:</strong> • Полупрозрачный белый круг радиуса
+                2.3·r (r=5)<br />
+                • Центральный жёлтый диск радиуса r с красной тонкой обводкой<br />
+                • 8 «лучей» красной тонкой линией от 1.5·r до 2·r
+              </p>
+              <pre><code>sun[{x_, y_}] := With[{r = 5},
+  {Opacity[.5], White, Disk[{x, y}, 2.3 r],
+   Opacity[1], Yellow, EdgeForm[{Red, Thin}], Disk[{x, y}, r],
+   Red, Thin,
+   Line@Table[
+     With[{θ = (2 π k)/8},
+      {2 r {Cos[θ], Sin[θ]} + {x, y},
+       1.5 r {Cos[θ], Sin[θ]} + {x, y}}
+     ], {k, 8}]
+  }
+];</code></pre>
+              <p>
+                <strong>Пример:</strong> <code>sun[{0, 0}]</code> рисует солнце
+                в центре.
+              </p>
+            </article>
+
+            <!-- Переменная clockticks -->
+            <article class="function">
+              <h3>clockticks</h3>
+              <p>
+                <strong>Назначение:</strong> задаёт 12 точек для отображения
+                делений циферблата.
+              </p>
+              <pre><code>clockticks = With[{r = 10},
+  N@Table[
+    0.8 r {Cos[(2 π i)/12], Sin[(2 π i)/12]},
+    {i, 12}
+  ]
+];</code></pre>
+            </article>
+
+            <!-- Функция clock -->
+            <article class="function">
+              <h3>clock[{x, y}, t]</h3>
+              <p>
+                <strong>Назначение:</strong> рисует циферблат часов и стрелку,
+                указывающую время <code>t</code> (в часах).
+              </p>
+              <p>
+                <strong>Сигнатура:</strong> <code>clock[{x_, y_}, t_]</code>
+              </p>
+              <p><strong>Описание:</strong></p>
+              <ul>
+                <li>
+                  Белый или серый круг радиуса r=10 с тёмной тонкой обводкой
+                </li>
+                <li>
+                  Стрелка от центра длины 0.7·r под углом
+                  <code>π/2 – 2π t/12</code>
+                </li>
+                <li>Точки делений циферблата из <code>clockticks</code></li>
+              </ul>
+              <pre><code>clock[{x_, y_}, t_] := With[{
+  r = 10,
+  θ = π/2 - (2 π t)/12
+},
+  {
+    EdgeForm[{Thin, GrayLevel[.3]}],
+    If[t > 12, LightGray, White], Disk[{x, y}, r],
+    GrayLevel[.3],
+    Line[{{x, y}, .7 r {Cos[θ], Sin[θ]} + {x, y}}],
+    PointSize[Tiny],
+    Point[({x, y} + # &) /@ clockticks]
+  }
+];</code></pre>
+            </article>
+
+            <!-- Функция absgmt -->
+            <article class="function">
+              <h3>absgmt[d]</h3>
+              <p>
+                <strong>Назначение:</strong> вычисляет универсальное время и
+                порядковый номер минуты с начала года для даты <code>d</code>.
+              </p>
+              <p><strong>Сигнатура:</strong> <code>absgmt[d_DateList]</code></p>
+              <p><strong>Описание:</strong></p>
+              <ul>
+                <li>
+                  Сдвигает <code>d</code> на локальный <code>$TimeZone</code>
+                </li>
+                <li>
+                  Возвращает список: {час.час+ мин/60, число минут от начала
+                  года}
+                </li>
+              </ul>
+              <pre><code>absgmt[d_] := Module[{gd},
+  gd = DatePlus[d, {-$TimeZone, "Hour"}];
+  QuantityMagnitude[{
+    gd[[4]] + gd[[5]]/60.,
+    DateDifference[{d[[1]], 1, 1}, d[[1 ;; 3]]}
+  ]
+];</code></pre>
+            </article>
+
+            <!-- labels -->
+            <article class="function">
+              <h3>labels</h3>
+              <p>
+                <strong>Назначение:</strong> три варианта мини‑графика функции
+                <code>ArcTan[3 Sin[x]]</code> (сплошная кривая, заполнение
+                снизу, полупрозрачное заполнение).
+              </p>
+              <pre><code>labels = With[{opts = {
+  PlotPoints -> 15,
+  MaxRecursion -> 0,
+  Axes -> None,
+  ImageSize -> 30
+}},
+  {
+    Plot[ArcTan[3 Sin[x]], {x, 0, 2 π}, opts, PlotStyle -> Darker[Green]],
+    Plot[..., Filling -> Bottom, PlotStyle -> Darker[Green]],
+    Plot[..., Filling -> Bottom, PlotStyle -> Directive[Green, Opacity[.2], Thickness[.1]]]
+  }
+];</code></pre>
+            </article>
+
+            <!-- Параметры Manipulate -->
+            <article class="params">
+              <h3>Параметры <code>Manipulate</code></h3>
+              <table>
+                <tr>
+                  <th>Имя</th>
+                  <th>Описание</th>
+                  <th>Диапазон / Варианты</th>
+                </tr>
+                <tr>
+                  <td><code>u</code></td>
+                  <td>Универсальное время (часы)</td>
+                  <td>0–24</td>
+                </tr>
+                <tr>
+                  <td><code>n</code></td>
+                  <td>Номер дня в году</td>
+                  <td>0–365, шаг 1</td>
+                </tr>
+                <tr>
+                  <td><code>ds</code></td>
+                  <td>Летнее время (DST)</td>
+                  <td>Checkbox: 0 или –1</td>
+                </tr>
+                <tr>
+                  <td><code>sty</code></td>
+                  <td>Стиль отображения ночной зоны</td>
+                  <td>1, 2 или 3 (три Tooltip‑кнопки)</td>
+                </tr>
+              </table>
+            </article>
+          </section>
+        </div>
+      </div>
+      <div class="accordion">
+        <button class="accordion__btn glass">Разбор файла 2</button>
+        <div class="accordion__content glass">
+          <section class="glass">
+            <h2>Разбор файла 2</h2>
+             <h2>Результат выполнения кода:</h2>
+             <p><img src="image2/Clock.png" width="650" height="500" alt=""></p>
+             <h2>Разбор кода:</h2>
+            <!-- 1. Основные вычисления в Manipulate -->
+            <article class="function">
+              <h3>Вычисляемые величины</h3>
+              <p>
+                <strong>Назначение:</strong> внутри
+                <code>Manipulate</code> последовательно вычисляются основные
+                астрономические углы и позиции:
+              </p>
+              <ul>
+                <li><code>tilt = 23.45°</code> — наклон оси Земли.</li>
+                <li>
+                  <code>dCal</code> — угол, соответствующий дню года:<br />
+                  <code>2π·(Mod[dayNr + 10, days])/days</code>
+                </li>
+                <li>
+                  <code>mCal</code> — лунная фаза, приведённая к углу:<br />
+                  <code>-12.3683·2π·(DayCount + 10)/days + 0.7</code>
+                </li>
+                <li>
+                  <code>tCal</code> — угол “солнечного времени”:<br />
+                  <code>π/12·(30 – time + If[lat ≥ 0, 0, 12])</code>
+                </li>
+                <li>
+                  <code>sPos</code> — позиция Солнца в плоскости графика, размер
+                  пропорционален секанту:<br />
+                  <code
+                    >2·Sec[tilt]·(–Cos[dCal]·Tan[tilt] +
+                    √(1−Sin[dCal]^2·Tan[tilt]^2))·{–Cos[tCal], –Sin[tCal]}</code
+                  >
+                </li>
+                <li>
+                  <code>mPos</code> — аналогично для Луны:<br />
+                  <code>… с dCal–mCal и tCal–mCal …</code>
+                </li>
+                <li>
+                  <code>ePos</code> — центр эклиптики:<br />
+                  <code>2·Tan[tilt]·{Cos[dCal–tCal], –Sin[dCal–tCal]}</code>
+                </li>
+              </ul>
+            </article>
+
+            <!-- 2. Функция moon -->
+            <article class="function">
+              <h3>moon[mCal_, {x0_, y0_}, r_]</h3>
+              <p>
+                <strong>Назначение:</strong> строит кривую луны с заполнением,
+                показывающую фазу <code>mCal</code> (от –1 до +1).
+              </p>
+              <p>
+                <strong>Сигнатура:</strong>
+                <code>moon[mCal_, {x₀_, y₀_}, r_]</code>
+              </p>
+              <p>
+                <strong>Описание:</strong> создаёт три кривые (<code
+                  >y₀−√[…], y₀−mCal·√[…], y₀+√[…]</code
+                >) и заполняет области между ними чёрным и белым.
+              </p>
+              <pre><code>moon[mCal_, {x0_, y0_}, r_] :=  
+  Plot[
+    Evaluate[
+      y0 - # Sqrt[r^2 - (x0 - x)^2] & /@ {1, mCal, -1}
+    ],
+    {x, -3.5, 3.5},
+    PlotStyle -> Directive[Black, Thin],
+    Filling -> {1 -> {2}, 3 -> {2}},
+    FillingStyle -> {Black, White},
+    AspectRatio -> 1
+  ][[1]];</code></pre>
+            </article>
+
+            <!-- 3. Функция eqT -->
+            <article class="function">
+              <h3>eqT[dayNr_]</h3>
+              <p>
+                <strong>Назначение:</strong> рассчитывает «уравнение времени»
+                (разность солнечных и средних часов) в градусах на заданный день
+                года.
+              </p>
+              <pre><code>eqT[dayNr_] := Module[{b = 2 π (dayNr - 81)/days},
+  (9.87 Sin[2 b] - 7.53 Cos[b] - 1.5 Sin[b]) / 60 * 15
+];</code></pre>
+            </article>
+
+            <!-- 4. Функция TCF -->
+            <article class="function">
+              <h3>TCF[day_, long_, tz_, dst_]</h3>
+              <p>
+                <strong>Назначение:</strong> вычисляет поправку времени (в
+                минутах) для долготы <code>long</code>, часового пояса
+                <code>tz</code> и DST.
+              </p>
+              <pre><code>TCF[day_, long_, tz_, dst_] :=  
+  (-60 (tz + If[dst, 1, 0]) + 4 long + 4 eqT[day]) [[-1]];</code></pre>
+            </article>
+
+            <!-- 5. Инициализация списка latitudes и переменной dial -->
+            <article class="function">
+              <h3>latitudes и dial</h3>
+              <p>
+                <strong>latitudes:</strong> ассоциативный список популярных
+                широт → названия городов (Brussels, Tokyo, …).
+              </p>
+              <p>
+                <strong>dial:</strong> сложная структура точек, окружностей и
+                чисел для рисования циферблата часов вокруг графика.
+              </p>
+            </article>
+
+            <!-- 6. Параметры Manipulate -->
+            <article class="params">
+              <h3>Параметры <code>Manipulate</code></h3>
+              <table>
+                <tr>
+                  <th>Имя</th>
+                  <th>Описание</th>
+                  <th>Диапазон / Тип</th>
+                </tr>
+                <tr>
+                  <td><code>lat</code></td>
+                  <td>Широта (или город)</td>
+                  <td>
+                    –90°…90°, с “Play/Pause” и списком <code>latitudes</code>
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>dayNr</code></td>
+                  <td>День года</td>
+                  <td>
+                    0–365, шаг 1, кнопки быстрого перехода (Mar 21, Jun 21…)
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>time</code></td>
+                  <td>Солнечное время</td>
+                  <td>0–24 ч, шаг 1/60, “Play/Pause”</td>
+                </tr>
+                <tr>
+                  <td>Скрытые<br />переменные</td>
+                  <td>
+                    <code>days</code>, <code>prsDay</code>, <code>prsTime</code>
+                  </td>
+                  <td>ControlType → None</td>
+                </tr>
+                <tr>
+                  <td>
+                    <code>Button<br />("at your location now")</code>
+                  </td>
+                  <td>
+                    Устанавливает <code>lat, dayNr, time</code> по геолокации
+                  </td>
+                  <td>ImageSize → 155</td>
+                </tr>
+              </table>
+            </article>
+          </section>
+        </div>
+      </div>
+      <div class="accordion">
+        <button class="accordion__btn glass">Разбор файла 3</button>
+        <div class="accordion__content glass">
+          <section class="glass">
+            <h2>Разбор файла 3</h2>
+             <h2>Результат выполнения кода:</h2>
+             <p><img src="image2/Helix.png" width="650" height="500" alt=""></p>
+             <h2>Разбор кода:</h2>
+            <!-- 1. Вычисляемые величины в Manipulate -->
+            <article class="function">
+              <h3>Вычисляемые объекты</h3>
+              <p>
+                <strong>Назначение:</strong> строит 3D-спираль с двумя
+                разноцветными нитями, сферами и центральным стержнем.
+              </p>
+              <ul>
+                <li>
+                  <code>m = Sin[π/n]</code> — шаг по вертикали пропорциональный
+                  числу точек в обороте <code>n</code>.
+                </li>
+                <li>
+                  <code>ser</code> — список цилиндров rungs (лесенка),
+                  соединяющих точки на двух спиралях:<br />
+                  <code
+                    >Table[Cylinder[{{Sin[i·2π/n], Cos[i·2π/n], i·2·m·Tan[k]},
+                    {… + s·2·m·Tan[k]}} , dia], {i, run}]</code
+                  >
+                </li>
+                <li>
+                  <code>sp1</code> и <code>sp2</code> — массивы жёлтых и
+                  оранжевых сфер на первой и второй спиралях:<br />
+                  <code>Sphere[{…}, dia1] / Sphere[{…}, dia2]</code>
+                </li>
+                <li>
+                  <code>hel1</code> и <code>hel2</code> — два набора цилиндров
+                  для двух нитей спирали:<br />
+                  <code>Cylinder[{{…},{…}}, 2·dia]</code> с RGB-цветами
+                </li>
+                <li>
+                  <code>cent</code> — центральный цилиндр («оси»):<br />
+                  <code>Cylinder[{{0,0,-0.5},{0,0,4}}, 0.6]</code>
+                </li>
+                <li>
+                  <code>Show[…]</code> — объединяет все объекты, задаёт вид и
+                  отключает рамку:
+                </li>
+                <pre><code>Show[
+  ser, sp1, sp2, hel1, hel2, cent,
+  ImageSize -> {400,500},
+  ViewAngle -> π/40,
+  ViewPoint -> {0,10,3},
+  SphericalRegion -> True,
+  Boxed -> False
+]</code></pre>
+              </ul>
+            </article>
+
+            <!-- 2. Параметры Manipulate -->
+            <article class="params">
+              <h3>Параметры <code>Manipulate</code></h3>
+              <table>
+                <tr>
+                  <th>Имя</th>
+                  <th>Описание</th>
+                  <th>Диапазон / Шаг</th>
+                </tr>
+                <tr>
+                  <td><code>k</code></td>
+                  <td>«Pitch» — наклон/растяжение спирали</td>
+                  <td>0 … 1.2, <code>ImageSize -> Tiny</code></td>
+                </tr>
+                <tr>
+                  <td><code>dna</code></td>
+                  <td>Сдвиг второй спирали (угол)</td>
+                  <td>0 … 2π, <code>ImageSize -> Tiny</code></td>
+                </tr>
+                <tr>
+                  <td><code>n</code></td>
+                  <td>Число точек на один оборот</td>
+                  <td>3 … 60, <code>ImageSize -> Tiny</code></td>
+                </tr>
+                <tr>
+                  <td><code>run</code></td>
+                  <td>Число «ступеней» (rungs)</td>
+                  <td>1 … 60, <code>ImageSize -> Tiny</code></td>
+                </tr>
+                <tr>
+                  <td><code>dia1</code></td>
+                  <td>Диаметр сфер первой спирали</td>
+                  <td>0.01 … 0.5, <code>ImageSize -> Tiny</code></td>
+                </tr>
+                <tr>
+                  <td><code>dia2</code></td>
+                  <td>Диаметр сфер второй спирали</td>
+                  <td>0.01 … 0.5, <code>ImageSize -> Tiny</code></td>
+                </tr>
+                <tr>
+                  <td><code>dia</code></td>
+                  <td>Диаметр цилиндров (лоток спирали)</td>
+                  <td>0.01 … 0.2, <code>ImageSize -> Tiny</code></td>
+                </tr>
+                <tr>
+                  <td><code>s</code></td>
+                  <td>Длина сегмента спирали (смещение по арке)</td>
+                  <td>0.01 … 1, <code>ImageSize -> Tiny</code></td>
+                </tr>
+              </table>
+            </article>
+          </section>
+        </div>
+      </div>
+    </div>
+
+    <script src="main.js"></script>
+    <a href="/" class="back-btn glass" title="Назад">
+      На главную
+    </a>
+    
+  </body>
+</html>

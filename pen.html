@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Маятник</title>
+    <link rel="stylesheet" href="stylepen.css" />
+    <link rel="apple-touch-icon" sizes="180x180" href="../favicon/android-chrome-192x192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="../favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../favicon/favicon-16x16.png">
+    <link rel="manifest" href="../favicon/android-chrome-512x512.png">
+  </head>
+  <body>
+    <!-- Кнопка возврата на домашнюю страницу -->
+    <a href="/" class="btn-home">На главную</a>
+
+    <h1>Интерактивный пружинный маятник</h1>
+
+    <!-- Контейнер для маятника -->
+    <div class="glass-card pendulum-card">
+      <iframe
+        src="https://www.wolframcloud.com/obj/kristinivicegor/SpringPendulumWidget"
+        width="1000"
+        height="700"
+        allowfullscreen
+      >
+      </iframe>
+    </div>
+
+    <!-- Контейнер для текста -->
+    <div class="glass-card text-card">
+      <h2>Описание и информация</h2>
+      <p>
+        Этот пружинный маятник был реализован на языке Wolfram в виде пакета.
+        <p> Вот код пакета:</p>
+       <p> <img src="image1/Cod.png" width="500" height="500" alt=""></p>
+       
+      </p>
+      <h3>Теперь разберем построчно данный код</h3>
+      <p>
+        1. BeginPackage["SpringPendulum`"];
+                             — Начало объявления пакета и его публичного контекста.
+          <p>2. SpringPendulumGUI::usage =
+                             — Определение сообщения об использовании функции </p>                   
+        
+        <p>3. Begin["`Private`"];
+                             — Начало приватного контекста реализации пакета.</p>
+         <p>4.  SpringPendulumGUI[] := Manipulate[</p>                    
+         <p>Module[....]            -Прописываем значения амплитуды,траектории полета и основных велечин</p>
+       
+      <p>5. Graphics[...] - прописываем свойства отображения,а именно размер шарика,толщину пружины и другие визуальные параметры</p>
+      <p>6. Далее прописываем, как будет вести себя анимация в зависимости от изменяемых нами параметров на ползунках,а также визуальное оформление ползунков</p>
+      <p>7. End[]; — Завершение контекста пакета или приватного блока.</p>
+      <p>8. Protect[SpringPendulumGUI]; - Защищаем имя нашей функции</p>
+      <p>9. EndPackage[];— Завершение контекста пакета или приватного блока.</p>
+      
+    </p>
+    </div>
+
+    <script src="scripts.js"></script>
+  </body>
+</html>
